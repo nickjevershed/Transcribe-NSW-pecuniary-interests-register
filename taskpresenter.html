@@ -145,57 +145,6 @@ function companyClick(contractorNumber, name, jurisdiction, id) {
 //
 (function($, PDFJS, pybossa) {
 
-function setupCompanySearch (contractorNumber) {
-    var form_stuff = '<style lang="text/css">div.ocwidget-container {border-radius: 3px; margin-bottom:3px; width:100%; border: 1px solid #b18e72; max-width: 20em; font-family:Helvetica,sans-serif;}\n .ocwidget-header {padding: 1px 4px;}\n .ocwidget-header h3 { font-size: 15px; color: #8f735c; margin:0;}\n .ocwidget-footer { padding: 1px 3px; background-color: #efe7e0; border-top: 1px solid #676767; margin: 1em 0 0 0; font-size: 80%;}\n .ocwidget-container a {text-decoration: none; font-style: normal; color: #8f735c;}\n .ocwidget-container ul {padding: 0;}\n .ocwidget-container ul li {margin:0.25em 0.25em 0.25em 1.25em; font-style: italic;}\n .ocwidget-container .inactive, .ocwidget-container .inactive a {color: #999;}\n .ocwidget-container .company {font-weight: bold;}\n.ocwidget-container .summary {font-weight: bold; font-style:italic}\n.openc_api_search_q {font-size: 105%;margin-left:4px}\n.ocwidget-container .ocwidget-result {margin: 1px 4px; font-size: 90%;}\n.ocwidget-header .scope {font-size: 80%;}</style>';
-  form_stuff += '<div class="ocwidget-header"><h3><a href="https://opencorporates.com" target="_blank">Company search</a></h3></div>\n<form accept-charset="UTF-8" action="https://opencorporates.com/companies" class="search" id="ocwidget-search-' + contractorNumber + '" method="get"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"></div>\n<input id="openc_api_search_q-' + contractorNumber + '" class="openc_api_search_q" name="q" type="text">\n<input class="button" name="commit" type="submit" value="Search">\n</form><div class="loading" style="display:none;">Searching...</div><div id="ocwidget-result-' + contractorNumber + '" class="ocwidget-result" style="display:none;"></div><div class="ocwidget-footer">Powered by <a href="https://opencorporates.com" target="_blank">OpenCorporates</a></div>';
-  jQuery('#ocwidget-container-' + contractorNumber).html(form_stuff);
-  jQuery("#ocwidget-search-" + contractorNumber).submit(function(event) {
-    event.preventDefault();
-    if (jQuery("#ocwidget-result-" + contractorNumber).is(":visible")) {jQuery("#ocwidget-result-" + contractorNumber).slideUp("slow");}
-    jQuery(".loading").show();
-    var $form = jQuery( this ),
-            term = $form.find( 'input[name="q"]' ).val(),
-            url = $form.attr( 'action' ).replace('https://opencorporates.com/','http://api.opencorporates.com/v0.2/') + '/search?callback=?';
-    jQuery.getJSON( url, { q: term },
-          function( data ) { insertCompanyData(data, term, contractorNumber); }
-        );
-      });
-  
-  
-    }
-
-function insertCompanyData (data, term, contractorNumber) {
-  var companies = data.results.companies;
-  content = "<div class='summary'>Found <a href='https://opencorporates.com/companies?q=" + term + "'>" + data.results.total_count + " results</a></div>";
-  content += listAll(companies, contractorNumber);
-  jQuery("#ocwidget-container-" + contractorNumber + " .loading").hide();
-  jQuery( "#ocwidget-result-" + contractorNumber ).html(content).slideDown("slow");
-}
-
-function listItemFor(company, contractorNumber) {
-  var jurisdiction = company.jurisdiction_code.replace(/_(\w+)/," ($1)").toUpperCase();
-  var companyName = company.name.replace(/"/g, '\\\"'); /* TODO: better make an onclick handler later on .company */
-  companyName = companyName.replace(/'/g, "&apos;");
-  var li = "<li class='" + (company.inactive ? 'inactive' : '') + "'>";
-  li += " <a class='company' onclick='companyClick("+contractorNumber+",\""+companyName+"\",\""+jurisdiction+"\",\""+company.company_number+"\");'>" + company.name + "</a>, " + jurisdiction;
-  li += company.incorporation_date ? ', ' + company.incorporation_date : "";
-  li += company.current_status ? ', ' + company.current_status : "";
-  li += "</li>";
-  return li;
-}
-
-function listAll(coll, contractorNumber) { 
-  if(coll.length && coll.length > 0){
-    var listResult = "<ul>";
-    for (var i = 0; i < coll.length && i < 8; i++) {
-      var li = coll[i].company;
-      listResult += listItemFor(li, contractorNumber);
-    }
-    listResult += "</ul>";
-    return listResult;
-  }
-  else { return '';}
-}
 
 PDFJS.disableWorker = true;
 //
